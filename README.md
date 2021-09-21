@@ -1,7 +1,14 @@
-# Practice 1: Introduction to C
-## Subject: Programación 1
+# Subject: Programación 1
+This repo will contain all of the practice done in the second semestre of 2021.
 
-Usage of basic concepts such as:
+Practice 1
 - Basic structure of main function
 - Variables and constants
 - if statement
+
+Practice 2
+- n-dimentional arrays
+- for/while loops
+
+Practice 3
+- Usage of strings in C
