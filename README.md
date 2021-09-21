@@ -12,3 +12,4 @@ Practice 2
 
 Practice 3
 - Usage of strings in C
+- 2D arrays of strings
