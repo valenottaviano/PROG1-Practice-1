@@ -10,6 +10,6 @@ Practice 2 - Introduction to C
 - n-dimentional arrays
 - for/while loops
 
-Practice 3
+Practice 3 - Strings
 - Usage of strings in C
 - 2D arrays of strings
