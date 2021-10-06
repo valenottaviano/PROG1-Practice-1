@@ -18,6 +18,10 @@ int main(void){
 	printf("Por favor, ingresar una palabra: ");
 	fgets(word, sizeof(word), stdin);
 	
+	for (int i=0; i <strlen(word); i++){
+		word[i] = tolower(word[i]);
+	}
+
 	int k = 0;
 	// Loops over each character of the string
 	for (int i = 0; i < strlen(word);i++){
