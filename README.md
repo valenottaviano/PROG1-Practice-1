@@ -21,3 +21,6 @@ Practice 4 - Strings
 
 Practice 5 - Objects
 - "My Agenda" Activity
+
+Practice 6 - Files
+- "My Agenda + saving in files" Activity
