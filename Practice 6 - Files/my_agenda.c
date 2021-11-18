@@ -98,25 +98,24 @@ Contact createContact(FILE *arch){
 }
 
 void displayAgenda(int recordsSaved, Contact recordsList[], FILE *arch){
-	printf("-------------------------------------\n");
 	
-	arch = fopen("./contacts.dat", "rb");
+	Contact contact;
 
-	char ch;	
-	while((ch = fgetc(arch)) != EOF){
-     		printf("%c", ch);
+
+	arch = fopen("./contacts.dat", "r+");
+	//fseek(arch,0,0);
+	fread(&contact, sizeof(contact), 1, arch);
+	
+
+	while(!feof(arch)){
+		printf("Name: %s", contact.name);
+		printf("Surname: %s", contact.surname);
+		printf("Birthday: %s", contact.birthday);
+		printf("Phone Number: %.lf\n", contact.phoneNumber); 
+		printf("-------------------------------------\n");
+		fread(&contact, sizeof(contact), 1, arch);
 	}
-	/*
-	for (int i=0; i<recordsSaved; i++){
-		printf("Index: %i\n",i);
-		printf("Name: %s", recordsList[i].name);
-		printf("Surname: %s", recordsList[i].surname);
-		printf("Birthday: %s", recordsList[i].birthday);
-		printf("Phone Number: %.lf\n", recordsList[i].phoneNumber); 
-		printf("\n");
-	}
-	*/
-	printf("-------------------------------------\n");
+	fclose(arch);	
 }
 
 void editContact(int recordsSaved, Contact recordsList[]){
