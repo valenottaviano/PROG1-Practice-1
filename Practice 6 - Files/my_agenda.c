@@ -22,57 +22,58 @@ typedef struct {
 
 // Menu functions
 Contact createContact(FILE *arch);
-void displayAgenda(int recordsSaved, Contact recordsList[], FILE *arch);
-void editContact(int recordsSaved, Contact recordsList[]);
-void removeContact(int recordsSaved, Contact recordsList[]);
+int displayAgenda(FILE *arch);
+void editContact(FILE *arch);
+void removeContact(FILE *arch, int elementToDelete);
 
 int main (void){
 	FILE *arch;
+	int status = 1;
+	Contact recordsList[50];
+	int optionSelected = 0;
+											
+	while (status == 1){
+		printf("WELCOME TO YOUR PERSONAL AGENDA.\n");
+		printf("Please, enter one of the following options: \n");
+		printf("[1] - Add a new contact\n");
+		printf("[2] - Edit one contact\n");
+		printf("[3] - Remove one contact\n");
+		printf("[4] - Display the entire agenda\n");
+		printf("[9] - Exit the program\n");
+		
+		scanf("%i", &optionSelected);
+		getchar();
+			
+	switch (optionSelected){
+		case 1:
+			Contact newContact = createContact(arch);
+			break;
+		case 2:
+			editContact(arch);
+			break;
+		case 3:
+			int _ = displayAgenda(arch);
+			int toDelete;
 
-        int status = 1;
-        Contact recordsList[50];
-	int recordsSaved = 0;
-        int optionSelected = 0;
-                                               
-        while (status == 1){
-                printf("WELCOME TO YOUR PERSONAL AGENDA.\n");
-                printf("Please, enter one of the following options: \n");
-                printf("[1] - Add a new contact\n");
-                printf("[2] - Edit one contact\n");
-                printf("[3] - Remove one contact\n");
-                printf("[4] - Display the entire agenda\n");
-                printf("[9] - Exit the program\n");
-                
-                scanf("%i", &optionSelected);
-                getchar();
-                
-                switch (optionSelected){
-                        case 1:
-                        	Contact newContact = createContact(arch);
-				recordsSaved++;
-				break;
-			case 2:
-				editContact(recordsSaved, recordsList);
-				break;
-			case 3:
-				removeContact(recordsSaved, recordsList);
-				recordsSaved--;
-				break;	
-			case 4:
-				displayAgenda(recordsSaved, recordsList, arch);
-				break;
-                        case 9:
-                                //Exit the program.
-				status = 0;
-				break;
-                }
-        }
-        return 0;
+			printf("Please, select the position of the contact to delete.\n");
+			scanf("%i", &toDelete);
+			getchar();
+			removeContact(arch, toDelete);
+			break;	
+		case 4:
+			displayAgenda(arch);
+			break;
+		case 9:
+			//Exit the program.
+			status = 0;
+			break;
+			}
+	}
+	return 0;
 }
 
 Contact createContact(FILE *arch){
 	Contact newContact;
-	
 	arch = fopen("./contacts.dat", "a+");
 	if(arch == NULL){
 		arch = fopen("./contacts.dat", "w+");
@@ -88,7 +89,7 @@ Contact createContact(FILE *arch){
 	scanf("%lf", &newContact.phoneNumber);
 
 	fwrite(&newContact, sizeof(newContact),1, arch);
-        fclose(arch);
+	fclose(arch);
 
 	printf("-------------------------------------\n");
 	printf("New contact added successfulyy. \n");
@@ -97,15 +98,12 @@ Contact createContact(FILE *arch){
 	return newContact;
 }
 
-void displayAgenda(int recordsSaved, Contact recordsList[], FILE *arch){
-	
+int displayAgenda(FILE *arch){
 	Contact contact;
-
+	int counter = 0;
 
 	arch = fopen("./contacts.dat", "r+");
-	//fseek(arch,0,0);
 	fread(&contact, sizeof(contact), 1, arch);
-	
 
 	while(!feof(arch)){
 		printf("Name: %s", contact.name);
@@ -113,23 +111,41 @@ void displayAgenda(int recordsSaved, Contact recordsList[], FILE *arch){
 		printf("Birthday: %s", contact.birthday);
 		printf("Phone Number: %.lf\n", contact.phoneNumber); 
 		printf("-------------------------------------\n");
+		counter++;
 		fread(&contact, sizeof(contact), 1, arch);
 	}
-	fclose(arch);	
+	fclose(arch);
+
+	return counter;	
 }
 
-void editContact(int recordsSaved, Contact recordsList[]){
-	int contactSelected;
-	int propertySelected;
+void editContact(FILE *arch){
+	int propertySelected, contactSelected;
+	int contactsOnAgenda;
+	contactsOnAgenda = displayAgenda(arch);
 
 	printf("-------------------------------------\n");
-	printf("There are %i contacts in your agenda.\n", recordsSaved);
+	printf("There are %i contacts in your agenda.\n", contactsOnAgenda);
 	printf("\n");
-	
-	//displayAgenda(recordsSaved, recordsList);
+
 
 	printf("Please select the index of the contact to edit: ");
 	scanf("%i", &contactSelected);
+
+	Contact contact;
+
+	arch = fopen("./contacts.dat", "r+");
+	fseek(arch, sizeof(contact)*(contactSelected - 1), 0);
+	fread(&contact, sizeof(contact), 1, arch);
+	fclose(arch);
+
+	printf("Selected contact:\n");
+	printf("Name: %s", contact.name);
+	printf("Surname: %s", contact.surname);
+	printf("Birthday: %s", contact.birthday);
+	printf("Phone Number: %.lf\n", contact.phoneNumber); 
+	printf("-------------------------------------\n");
+
 	printf("Please select the property to edit.\n");
 	printf("[1] Name - [2] Surname - [3] Birthday - [4] Phone Number... ");
 	scanf("%i", &propertySelected);
@@ -138,51 +154,52 @@ void editContact(int recordsSaved, Contact recordsList[]){
 	switch (propertySelected){
 		case 1:
 			printf("Name: ");
-			fgets(recordsList[contactSelected].name, sizeof(recordsList[contactSelected].name), stdin);
+			fgets(contact.name, sizeof(contact.name), stdin);
 			break;
 		case 2:
 			printf("Surname: ");
-			fgets(recordsList[contactSelected].surname, sizeof(recordsList[contactSelected].surname), stdin);
+			fgets(contact.surname, sizeof(contact.surname), stdin);
 			break;
 		case 3:
 			printf("Birthday: ");
-			fgets(recordsList[contactSelected].birthday, sizeof(recordsList[contactSelected].birthday), stdin);
+			fgets(contact.birthday, sizeof(contact.birthday), stdin);
 			break;
 		case 4:
 			printf("Phone Number: ");
-			scanf("%lf", &recordsList[contactSelected].phoneNumber);
+			scanf("%lf", &contact.phoneNumber);
 			break;
 	}
+
+	removeContact(arch, contactSelected);
+	arch = fopen("./contacts.dat", "a+");
+	fwrite(&contact, sizeof(contact),1, arch);
+	fclose(arch);
+
 	printf("-------------------------------------\n");
-
-
 }
 
-void removeContact(int recordsSaved, Contact recordsList[]){
-	int contactSelected;
+void removeContact(FILE *arch, int elementToDelete){
+	int contactsOnAgenda = displayAgenda(arch);
+	int counter = 0;
 
-	//displayAgenda(recordsSaved, recordsList);
-	printf("Please select the index of the contact to delete: ");
-	scanf("%i", &contactSelected);
-	
-	if (contactSelected >= 0 && contactSelected < recordsSaved){
-		if (recordsSaved >1){
-			for (int i=contactSelected; i<(recordsSaved-1); i++){
-				recordsList[i] = recordsList[i+1];
-			}
-		}
-		printf("Contact deleted successfully.\n");
+	Contact contactList[contactsOnAgenda];
+	Contact contact;
+
+	arch = fopen("./contacts.dat", "r+");
+	fread(&contact, sizeof(contact), 1, arch);
+	while(!feof(arch)){
+		contactList[counter] = contact;
+		counter++;
+		fread(&contact, sizeof(contact), 1, arch);
 	}
+	fclose(arch);
 
+	arch = fopen("./contacts.dat", "w+");
+	for( int i = 0; i < contactsOnAgenda; i++){
+		if (i == (elementToDelete-1)){
+			continue;
+		}
+		fwrite(&contactList[i], sizeof(contactList[i]), 1, arch);
+	}
+	fclose(arch);
 }
-
-
-
-
-
-
-
-
-
-
-
